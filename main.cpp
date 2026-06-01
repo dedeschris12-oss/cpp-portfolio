@@ -1,74 +1,105 @@
 //
 //  main.cpp
-//  Lab10
+//  equiv array
 //
-//  Created by CHRISTOPHER on 5/24/26.
+//  Created by CHRISTOPHER on 5/3/26.
 //
 
 #include <iostream>
 #include <string>
-#include <cctype> 
 
 using namespace std;
 
-// Function prototype as required
-string titleCase(string originalText);
+// --- Function Prototypes ---
+bool areEquivalent(int a[], int sizeA, int b[], int sizeB);
+int countOccurrences(int data[], int sizeData, int item);
+void showArray(int a[], int sizeA, string msg = "");
+void getArray(int data[], int &n, string arrayName);
 
 int main() {
-    // Capture a string supplied by the keyboard
-    string userInput;
-    cout << "Enter a string to convert to Title-Case: ";
-    getline(cin, userInput);
+    const int MAX_CAPACITY = 100;
+    int arrayA[MAX_CAPACITY];
+    int arrayB[MAX_CAPACITY];
+    int sizeA, sizeB;
 
-    // Call the function and print the result
-    string result = titleCase(userInput);
-    cout << "Result: \"" << result << "\"" << endl;
+    // Populate arrays with validation
+    getArray(arrayA, sizeA, "Array A");
+    getArray(arrayB, sizeB, "Array B");
+
+    // Display arrays
+    showArray(arrayA, sizeA, "Array A");
+    showArray(arrayB, sizeB, "Array B");
+
+    // Perform Equivalency Test
+    if (areEquivalent(arrayA, sizeA, arrayB, sizeB)) {
+        cout << "\nThe arrays are: Equivalent" << endl;
+    } else {
+        cout << "\nThe arrays are: NOT Equivalent" << endl;
+    }
 
     return 0;
 }
 
-string titleCase(string originalText) {
-    string processedText = "";
-    bool newWord = true; // Tracks if the next alphabetic char should be capitalized
+// --- Function Definitions ---
 
-    for (size_t i = 0; i < originalText.length(); ++i) {
-        char currentChar = originalText[i];
+// Returns true if both arrays contain the same items with the same frequencies
+bool areEquivalent(int a[], int sizeA, int b[], int sizeB) {
+    // Protocol 1: Check if sizes are different
+    if (sizeA != sizeB) {
+        return false;
+    }
 
-        if (isalpha(currentChar)) {
-            if (newWord) {
-                // Capitalize the first letter of a new word
-                processedText += toupper(currentChar);
-                newWord = false; // Any consecutive letters belong to this same word
-            } else {
-                // Ensure all other letters in the word are lowercase
-                processedText += tolower(currentChar);
-            }
-        } else {
-            // If it's a space, we only append it if we already have words in our result
-            // AND the last appended character wasn't already a space
-            if (currentChar == ' ') {
-                if (processedText.length() > 0 && processedText[processedText.length() - 1] != ' ') {
-                    processedText += ' ';
-                }
-            } else {
-                // Append punctuation marks directly (e.g., '!')
-                processedText += currentChar;
-            }
-            
-            // Any non-alphabetic character resets the flag to look for a new word
-            newWord = true;
+    // Protocol 2 & 3: Compare occurrences for each element
+    for (int i = 0; i < sizeA; i++) {
+        int x = a[i];
+        int timesXA = countOccurrences(a, sizeA, x);
+        int timesXB = countOccurrences(b, sizeB, x);
+
+        if (timesXA != timesXB) {
+            return false;
         }
     }
 
-    
-    if (processedText.length() > 0 && processedText[processedText.length() - 1] == ' ') {
-        // Build a new string without the last character to avoid forbidden string functions
-        string trimmedText = "";
-        for (size_t i = 0; i < processedText.length() - 1; ++i) {
-            trimmedText += processedText[i];
+    return true;
+}
+
+// Returns the number of times 'item' occurs in the array
+int countOccurrences(int data[], int sizeData, int item) {
+    int count = 0;
+    for (int i = 0; i < sizeData; i++) {
+        if (data[i] == item) {
+            count++;
         }
-        processedText = trimmedText;
+    }
+    return count;
+}
+
+// Displays a message and the array elements
+void showArray(int a[], int sizeA, string msg) {
+    if (msg != "") {
+        cout << endl << msg << endl;
+    }
+    for (int i = 0; i < sizeA; i++) {
+        cout << a[i] << " ";
+    }
+    cout << endl;
+}
+
+// Asks user for logical size and populates the array with validation
+void getArray(int data[], int &n, string arrayName) {
+    cout << "How many items will be there in " << arrayName << " [at most 100]: ";
+    cin >> n;
+
+    // Validation loop for physical capacity
+    while (n > 100 || n < 0) {
+        cout << "Error - too many cells - try again" << endl << endl;
+        cout << "How many items will be there in " << arrayName << " [at most 100]: ";
+        cin >> n;
     }
 
-    return processedText;
+    cout << "Enter items [use space to separate]: ";
+    for (int i = 0; i < n; i++) {
+        cin >> data[i];
+    }
+    cout << endl;
 }
